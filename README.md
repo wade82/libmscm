@@ -1,16 +1,17 @@
-#　　　　　　LIBMSCM
 
-###　　　　　　　　　　　　　　Author: wade
-###　　　　　　　　　 E-mail: wei.zhang@genetalks.com
-
-
+　　　　　　　　　　     LIBMSCM
+====
+　　　　　　　　　　　　　　Author: wade
+----
+　　　　　　　　　 E-mail: wei.zhang@genetalks.com
+----
 Middleware for Message publishing/subscribing.
 
 用于无人系统中消息发布订阅的中间件，数据格式采用json字符串。集成了[RapidJson](http://rapidjson.org/)在include中。目前已封装了LCM。ROS和DDS还未实现。
 消息的通道称为channel（ROS中称为topic）
 
 
-##Source Code Directory
+## Source Code Directory
 ```
 .
 │── /bin/            # executable files of the example
@@ -23,12 +24,12 @@ Middleware for Message publishing/subscribing.
 └── /src             # source codes of this lib
 ```
 
-##Requirements
+## Requirements
 
 * [LCM](http://lcm-proj.github.io/)
 
 
-##Getting Started
+## Getting Started
 编译
 
 ```shell
@@ -38,7 +39,7 @@ $ make
 
 将include和lib放在自己的工程中，或在编译时指定其路径。
 
-##API
+## API
 
 已定义的处理器类型
 
