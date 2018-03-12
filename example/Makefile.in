@@ -1,0 +1,18 @@
+
+DIR_EXA := ./example
+SRCS := $(wildcard $(DIR_EXA)/*.cpp)
+OBJS := $(patsubst $(DIR_EXA)/%cpp, $(DIR_OBJ)/%o, $(SRCS))
+#TARGET = $(patsubst $(DIR_EXA)/%.cpp, $(DIR_BIN)/%.exe, $(SRCS))
+TARGET = $(patsubst $(DIR_EXA)/%.cpp, $(DIR_BIN)/%, $(SRCS))
+STATIC_TARGET = $(patsubst $(DIR_EXA)/%.cpp, $(DIR_BIN)/%_static, $(SRCS))
+
+#example: $(TARGET) $(STATIC_TARGET)
+example: $(TARGET)
+$(DIR_BIN)/% : $(DIR_OBJ)/%.o
+	$(CXX) $(CXXFLAGS) -o $@ $< $(DIR_LIB)/$(DYNAMIC_LIB) $(LDFLAGS) $(LIBS)
+$(DIR_BIN)/%_static : $(DIR_OBJ)/%.o
+	$(CXX) $(CXXFLAGS) -o $@ $< $(DIR_LIB)/$(STATIC_LIB) $(LDFLAGS) $(LIBS)
+
+$(DIR_OBJ)/%.o : $(DIR_EXA)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $^ -o $@ -I$(DIR_INC) $(LISBS) $(INCLUDE)
+
