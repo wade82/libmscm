@@ -24,9 +24,9 @@ SRC := $(wildcard ${DIR_SRC}/*.cpp)
 OBJ := $(patsubst %.cpp, ${DIR_OBJ}/%.o, $(notdir ${SRC}))
 HDR := $(wildcard ${DIR_SRC}/*.h ${DIR_SRC}/*.hpp)
 
-.PHONY : lib inc clean veryclean rebuild example
+.PHONY : dir lib inc clean veryclean rebuild example
 
-all : lib inc example
+all : dir lib inc example
 
 #lib : $(DYNAMIC_LIB) $(STATIC_LIB) inc
 lib : $(DYNAMIC_LIB) inc
@@ -38,6 +38,11 @@ inc:
 		echo copying $$file; \
 		cp "$$file" $(DIR_INC); \
 	done
+
+dir :
+	@mkdir -p obj
+	@mkdir -p lib
+	@mkdir -p bin
 
 include example/Makefile.in
 
