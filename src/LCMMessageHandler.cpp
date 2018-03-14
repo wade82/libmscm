@@ -15,7 +15,6 @@ static set<CLCMMessageHandler*> lcm_handlers;
 
 void handleMessage(const lcm_recv_buf_t* rbuf, const char *chan, void *userdata)
 {
-    cout<<"handling ["<<chan<<"] msg (content: "<<(char*)rbuf->data<<")\n";
     set<CLCMMessageHandler*>::const_iterator itr;
     for(itr=lcm_handlers.begin();itr!=lcm_handlers.end();itr++) {
         (*itr)->save(string(chan), string((char*)rbuf->data));

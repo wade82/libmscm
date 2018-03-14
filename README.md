@@ -16,12 +16,13 @@ Middleware for Message publishing/subscribing.
 .
 │── /bin/            # executable files of the example
 │── /example/        # example codes
-│── /include/        # header files for user applications
+│── /include/        # header files for user's applications
 │── /lib/            # libs generated
 │── /Makefile        # script for build
 │── /obj/            # object files
 │── /READEME.md      # This file
-└── /src             # source codes of this lib
+│── /script          # script files
+└── /src             # source files of this lib
 ```
 
 ## Requirements
@@ -38,6 +39,10 @@ $ make
 ```
 
 将include和lib放在自己的工程中，或在编译时指定其路径。
+
+lcm_logger.py:基于LCM的数据记录脚本。
+
+lcm_replay.py:基于LCM的数据回放脚本。
 
 ## API
 

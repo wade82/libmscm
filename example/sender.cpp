@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <typeinfo>
-//#include <lcm/lcm-cpp.hpp>
 #include "MessageHandlerFactory.h"
 #include "LCMMessageHandler.h"
 #include "ROSMessageHandler.h"
