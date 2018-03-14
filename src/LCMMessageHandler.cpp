@@ -7,57 +7,38 @@
 
 #include <iostream>
 #include <map>
-#include <lcm/lcm-cpp.hpp>
+#include <lcm/lcm.h>
 #include "LCMMessageHandler.h"
 using namespace std;
-using namespace lcm;
 
-// 不能放在HandlerWrapper中，地址不对了。
-static map<uint64_t, MsgHandlerFunc> callbacks;
 static set<CLCMMessageHandler*> lcm_handlers;
 
-void defaultHandler(const std::string& channel, const std::string& jsonmsg)
+void handleMessage(const lcm_recv_buf_t* rbuf, const char *chan, void *userdata)
 {
+    cout<<"handling ["<<chan<<"] msg (content: "<<(char*)rbuf->data<<")\n";
     set<CLCMMessageHandler*>::const_iterator itr;
     for(itr=lcm_handlers.begin();itr!=lcm_handlers.end();itr++) {
-        (*itr)->save(channel, jsonmsg);
+        (*itr)->save(string(chan), string((char*)rbuf->data));
     }
-}
-
-void CLCMMessageHandler::register_callback(uint64_t handler_addr, MsgHandlerFunc callback)
-{
-    callbacks[handler_addr] = callback;
-}
-
-void CLCMMessageHandler::unregister_callback(uint64_t handler_addr)
-{
-    callbacks.erase(handler_addr);
+    if (userdata!=NULL)
+        ((MsgHandlerFunc)userdata)(string(chan), string((char*)rbuf->data));
 }
 
 CLCMMessageHandler::CLCMMessageHandler():CMessageHandler()
 {
-    pLCM = NULL;
+    lcm = NULL;
     lcm_handlers.insert(this);
 }
 
 CLCMMessageHandler::~CLCMMessageHandler()
 {
-    if (pLCM)
-        delete pLCM;
-    pLCM = NULL;
+    lcm_destroy (lcm);
     lcm_handlers.erase(this);
 }
 
 bool CLCMMessageHandler::init(int argc, char **argv, const std::string& name)
 {
-    if (argc>1) {
-        cout<<argc<<"==="<<argv[1]<<endl;
-        pLCM = new lcm::LCM(argv[1]);
-    }
-    else
-        pLCM = new lcm::LCM();
-    if(!pLCM->good())
-        return false;
+    this->lcm = lcm_create (NULL);
     cout<<"LCM init OK."<<endl;
     cout<<"Handler name is :"<<name<<endl;
 
@@ -66,37 +47,25 @@ bool CLCMMessageHandler::init(int argc, char **argv, const std::string& name)
 
 bool CLCMMessageHandler::publish(const std::string& channel, const std::string& msgstr)
 {
-    lcm::lcm_jsonmsg msg;
-    msg.jsonstr = msgstr;
-    pLCM->publish(channel, &msg);
+    lcm_publish (lcm, channel.c_str(), msgstr.c_str(), msgstr.length()+1);
     return true;
 }
 
 bool CLCMMessageHandler::subscribe(const std::string& channel,
         MsgHandlerFunc handlerMethod)
 {
-    HandlerWrapper handlerObject;
-    if (handlerMethod==NULL) {
-        cout<<"subscribe:handlerMethod is NULL, use default."<<endl;
-        register_callback((uint64_t)&handlerObject, defaultHandler);
-    }
-    else {
-        register_callback((uint64_t)&handlerObject, handlerMethod);
-    }
-
-    Subscription * sub = pLCM->subscribe(channel,
-            &HandlerWrapper::handleMessage, &handlerObject);
+    lcm_subscription_t * sub = lcm_subscribe(lcm, channel.c_str(), handleMessage, (void*)handlerMethod);
     this->m_subs[channel].insert(sub);
     return true;
 }
 
 bool CLCMMessageHandler::unsubscribe(const std::string& channel)
 {
-    set<Subscription *> subs=this->m_subs[channel];
-    set<Subscription *>::iterator it;
+    set<lcm_subscription_t *> subs = this->m_subs[channel];
+    set<lcm_subscription_t *>::iterator it;
     for(it=subs.begin();it!=subs.end();it++) {
-        Subscription * sub = *it;
-        pLCM->unsubscribe(sub);
+        lcm_subscription_t * sub = *it;
+        lcm_unsubscribe(this->lcm, sub);
     }
     m_subs.erase(channel);
     return true;
@@ -104,13 +73,13 @@ bool CLCMMessageHandler::unsubscribe(const std::string& channel)
 
 bool CLCMMessageHandler::spin()
 {
-    while(0 == pLCM->handle());
+    while(0 == lcm_handle(this->lcm));
     return true;
 }
 
 bool CLCMMessageHandler::spinOnce()
 {
-    pLCM->handle();
+    lcm_handle(this->lcm);
     return true;
 }
 
@@ -122,14 +91,5 @@ void CLCMMessageHandler::save(const std::string& channel, const std::string& jso
 string CLCMMessageHandler::getData(const std::string& channel)
 {
     return this->databuf[channel];
-}
-
-void HandlerWrapper::handleMessage(const lcm::ReceiveBuffer* rbuf, const std::string& chan, const lcm::lcm_jsonmsg* msg)
-{
-    map<uint64_t, MsgHandlerFunc>::iterator iter;
-    iter = callbacks.find((uint64_t)this);
-    if(iter != callbacks.end()) {
-        (iter->second)(chan, msg->jsonstr);
-    }
 }
 

@@ -56,13 +56,13 @@ int main(int argc, char** argv)
     signal(SIGINT, signalHandler);
 
     std::string channel = "EXAMPLE";
-    // 使用默认回调函数，由pMessageHandler存储最新数据.
-    pMessageHandler->subscribe(channel);
-    //pMessageHandler->subscribe(channel, handleMessage);
+    // 订阅消息，handlMessage可以省略
+    pMessageHandler->subscribe(channel, handleMessage);
     //pMessageHandler->spin();
     while(true) {
         pMessageHandler->spinOnce();
-        handleMessage(channel, pMessageHandler->getData(channel));
+        // 可以在此处获取并处理数据.
+        cout<<pMessageHandler->getData(channel)<<endl;
     }
 
     return 0;

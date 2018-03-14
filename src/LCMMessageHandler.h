@@ -10,8 +10,8 @@
 #include <map>
 #include <set>
 #include <lcm/lcm.h>
-#include <lcm/lcm-cpp.hpp>
-#include "lcm_jsonmsg.hpp"
+//#include <lcm/lcm-cpp.hpp>
+//#include "lcm_jsonmsg.hpp"
 #include "MessageHandler.h"
 using namespace std;
 
@@ -28,24 +28,28 @@ public:
     bool unsubscribe(const std::string& channel);
     bool spin();
     bool spinOnce();
-    friend void defaultHandler(const std::string& channel, const std::string& jsonmsg);
+    //friend void defaultHandler(const std::string& channel, const std::string& jsonmsg);
+    friend void handleMessage(const lcm_recv_buf_t* rbuf, const char *chan, void *userdata);
 private:
-    lcm::LCM *pLCM;
+    //lcm::LCM *pLCM;
+    lcm_t * lcm;
     map<string, string> databuf;
-    map<string, set<lcm::Subscription *> > m_subs;
-    void register_callback(uint64_t, MsgHandlerFunc);
-    void unregister_callback(uint64_t);
+    //map<string, set<lcm::Subscription *> > m_subs;
+    map<string, set<lcm_subscription_t*> > m_subs;
+    //void register_callback(uint64_t, MsgHandlerFunc);
+    //void unregister_callback(uint64_t);
 
 public:
     void save(const std::string& channel, const std::string& jsonmsg);
     string getData(const string& channel);
 };
 
-
+/*
 class HandlerWrapper
 {
 public:
     ~HandlerWrapper() {}
     void handleMessage(const lcm::ReceiveBuffer* rbuf, const std::string& chan, const lcm::lcm_jsonmsg* msg);
 };
+*/
 
