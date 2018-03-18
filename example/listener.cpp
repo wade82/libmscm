@@ -10,8 +10,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include "MessageHandlerFactory.h"
-#include "LCMMessageHandler.h"
-#include "ROSMessageHandler.h"
+#include "MessageHandler.h"
 #include "rapidjson/document.h"
 
 using namespace std;
@@ -40,9 +39,15 @@ void handleMessage(const std::string& channel, const std::string& jsonmsg)
     show_data(d);
 }
 
-void signalHandler( int a )
+void int_handler(int signum)
 {
-    cout << "\nYou have pressed Ctrl+C. Exiting..." << endl;
+    cout << "\nreceived SIGINT, doing force shutting down.."<<endl;
+    exit(0);
+}
+
+void quit_handler(int signum)
+{
+    cout << "\nreceived SIGQUIT, doing graceful shutting down.."<<endl;
     exit(0);
 }
 
@@ -53,7 +58,8 @@ int main(int argc, char** argv)
     CMessageHandler * pMessageHandler = pMHFactory->CreateMessageHandler(type);
     pMessageHandler->init(argc, argv, "listener");
 
-    signal(SIGINT, signalHandler);
+    signal(SIGINT, int_handler);
+    signal(SIGQUIT, quit_handler);
 
     std::string channel = "EXAMPLE";
     // 订阅消息，handlMessage可以省略

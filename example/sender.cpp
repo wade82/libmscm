@@ -38,9 +38,15 @@ void show_data(const Document& data)
         <<"  enabled     = "<<(data["enabled"].GetBool()?"true":"false")<<endl;
 }
 
-void signalHandler( int a )    
+void int_handler(int signum)
 {
-    cout << "You have pressed Ctrl+C. Exiting..." << endl;
+    cout << "\nreceived SIGINT, doing force shutting down.."<<endl;
+    exit(0);
+}
+
+void quit_handler(int signum)
+{
+    cout << "\nreceived SIGQUIT, doing graceful shutting down.."<<endl;
     exit(0);
 }
 
@@ -49,7 +55,8 @@ int main(int argc, char** argv)
     CMessageHandlerFactory * pMHFactory = new CMessageHandlerFactory();
     CMessageHandler * pMessageHandler = pMHFactory->CreateMessageHandler(LCM);
     pMessageHandler->init(argc, argv, "sender");
-    signal(SIGINT, signalHandler);
+    signal(SIGINT, int_handler);
+    signal(SIGQUIT, quit_handler);
 
     int i;
     while (true) {
