@@ -8,8 +8,8 @@
 #pragma once
 #include <iostream>
 #include <lcm/lcm-cpp.hpp>
-//#include "ros/ros.h"
-//#include "std_msgs/String.h"
+#include "ros/ros.h"
+#include "std_msgs/String.h"
 #include "MessageHandler.h"
 
 using namespace std;
@@ -29,6 +29,6 @@ public:
     bool spinOnce();
     string getData(const string&);
 private:
-    //ros::NodeHandle* node;
+    ros::NodeHandle* node;
 };
 

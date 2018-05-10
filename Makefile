@@ -14,15 +14,17 @@ AR		:= ar
 RANLIB	:= ranlib
 ARFLAGS := -rc
 DEFINES :=
-INCLUDE := #-I/opt/ros/kinetic/include
-LIBS	:= -L$(DIR_LIB) #-L/opt/ros/kinetic/lib
+INCLUDE := -I/opt/ros/kinetic/include
+LIBS	:= -L$(DIR_LIB) -L/opt/ros/kinetic/lib
 CXXFLAGS:= -g -Wall -O3 -fpic #-std=c++11
+ROSLIB  := -lroscpp -lrospack -lrosconsole
 SHARE	:= -shared -fPIC -llcm -lstdc++
-LDFLAGS :=  -llcm -lstdc++
+LDFLAGS :=  -llcm -lstdc++ ${ROSLIB}
 
 SRC := $(wildcard ${DIR_SRC}/*.cpp)
 OBJ := $(patsubst %.cpp, ${DIR_OBJ}/%.o, $(notdir ${SRC}))
 HDR := $(wildcard ${DIR_SRC}/*.h ${DIR_SRC}/*.hpp)
+
 
 .PHONY : dir lib inc clean veryclean rebuild example
 
